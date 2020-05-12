@@ -1,0 +1,16 @@
+{
+  "name": "EloquentVision",
+  "keywords": "",
+  "description": "Image processing datatypes and algorithms for Arduino and Esp32",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eloquentarduino/EloquentVision"
+  },
+  "version": "0.0.1",
+  "authors": {
+    "name": "Simone Salerno",
+    "url": "https://github.com/eloquentarduino"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}
