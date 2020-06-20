@@ -166,6 +166,30 @@ namespace Eloquent {
                     }
                 }
 
+                void _downscaleForPersonDetection(uint8_t *source, uint8_t *dest, uint16_t sourceWidth, uint16_t sourceHeight) {
+                    uint16_t destWidth = 96;
+                    uint16_t destHeight = 96;
+                    uint8_t blockSizeX = floor(sourceWidth / destWidth);
+                    uint8_t blockSizeY = floor(sourceHeight / destHeight);
+
+                    for (uint16_t destY = 0; destY < destHeight; destY++) {
+                        uint16_t sourceY = (destY + 0.5) * blockSizeY;
+
+                        for (int destX = 0; destX < destWidth; destX++) {
+                            uint16_t sourceX = (destX + 0.5) * blockSizeX;
+
+                            dest[destY * destWidth + destX] = source[sourceY * sourceWidth + sourceX];
+                        }
+                    }
+                }
+
+                void downscaleForPersonDetection(uint8_t *source, uint8_t *dest) {
+                    // assumes source is 160 x 120
+                    for (int y = 0; y < 96; y++)
+                        for (int x = 0; x < 96; x++)
+                            dest[y * 96 + x] = source[(y + 12) * 160 + (x + 32)];
+                }
+
             }
         }
     }

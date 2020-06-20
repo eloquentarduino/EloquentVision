@@ -5,3 +5,4 @@
 #endif
 
 #include "ImageProcessing/Downscale.h"
+#include "ImageProcessing/MotionDetection.h"
