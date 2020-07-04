@@ -6,3 +6,4 @@
 
 #include "ImageProcessing/Downscale.h"
 #include "ImageProcessing/MotionDetection.h"
+#include "ImageProcessing/YUV422Decoder.h"

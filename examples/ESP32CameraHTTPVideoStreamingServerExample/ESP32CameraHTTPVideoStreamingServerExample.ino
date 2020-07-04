@@ -20,7 +20,7 @@ void setup() {
     WiFi.softAP("ESP32", "12345678");
 
     camera.begin(FRAMESIZE_QVGA, PIXFORMAT_JPEG);
-    server.start(20000);
+    server.start();
 
     Serial.print("Camera Ready! Use 'http://");
     Serial.print(WiFi.softAPIP());

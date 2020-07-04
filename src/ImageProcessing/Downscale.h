@@ -74,11 +74,12 @@ namespace Eloquent {
 
                     for (uint8_t blockY = blockSize / 3; blockY < blockSize * 2 / 3; blockY++) {
                         uint16_t y = sourceY + blockY;
+                        uint16_t offsetY = y * sourceWidth;
 
                         for (uint16_t blockX = blockSize / 3; blockX < blockSize * 2 / 3; blockX++) {
                             uint16_t x = sourceX + blockX;
 
-                            pixel += source[y * sourceWidth + x];
+                            pixel += source[offsetY + x];
                             count += 1;
                         }
                     }
@@ -156,12 +157,13 @@ namespace Eloquent {
 
                     for (uint16_t destY = 0; destY < destHeight; destY++) {
                         uint16_t sourceY = destY * blockSize;
+                        uint16_t offsetY = destY * destWidth;
 
                         for (int destX = 0; destX < destWidth; destX++) {
                             uint16_t sourceX = destX * blockSize;
                             uint32_t pixel = f(source, sourceWidth, sourceHeight, sourceX, sourceY, blockSize);
 
-                            dest[destY * destWidth + destX] = pixel;
+                            dest[offsetY + destX] = pixel;
                         }
                     }
                 }
