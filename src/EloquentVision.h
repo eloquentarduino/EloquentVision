@@ -7,3 +7,5 @@
 #include "ImageProcessing/Downscale.h"
 #include "ImageProcessing/MotionDetection.h"
 #include "ImageProcessing/YUV422Decoder.h"
+#include "ImageProcessing/RGB565Decoder.h"
+//#include "Bitmap.h"
