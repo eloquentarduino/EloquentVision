@@ -149,9 +149,11 @@ namespace Eloquent {
                  * @param sourceWidth
                  * @param sourceHeight
                  * @param blockSize
+                 * @param channels how many channels the image is made of
+                 * @param channel which channel to use
                  */
                 void downscaleImage(uint8_t *source, uint8_t *dest, ImageDownscaler f, uint16_t sourceWidth,
-                                    uint16_t sourceHeight, uint8_t blockSize) {
+                                    uint16_t sourceHeight, uint8_t blockSize, uint8_t channels = 1, uint8_t channel = 0) {
                     uint16_t destWidth = sourceWidth / blockSize;
                     uint16_t destHeight = sourceHeight / blockSize;
 
@@ -161,7 +163,7 @@ namespace Eloquent {
 
                         for (int destX = 0; destX < destWidth; destX++) {
                             uint16_t sourceX = destX * blockSize;
-                            uint32_t pixel = f(source, sourceWidth, sourceHeight, sourceX, sourceY, blockSize);
+                            uint32_t pixel = f(source, sourceWidth, sourceHeight, sourceX, sourceY, blockSize, channels, channel);
 
                             dest[offsetY + destX] = pixel;
                         }

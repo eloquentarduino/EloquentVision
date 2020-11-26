@@ -8,4 +8,7 @@
 #include "ImageProcessing/MotionDetection.h"
 #include "ImageProcessing/YUV422Decoder.h"
 #include "ImageProcessing/RGB565Decoder.h"
-//#include "Bitmap.h"
+
+#ifdef FS_H
+#include "io/BitmapWriter.h"
+#endif
