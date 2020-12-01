@@ -21,18 +21,15 @@ namespace Eloquent {
                 void writeGrayscale(File& file, uint8_t *image) {
                     writeHeader(file);
 
-                    for (uint16_t i = height - 1; ; i--) {
-                        const uint16_t y = i * width;
+                    for (uint32_t i = 0; i < width * height; i++) {
+                        uint8_t pixel = *image++;
 
-                        for (int x = 0; x < width; x++) {
-                            file.write(image + y + x, 1);
-                            file.write(image + y + x, 1);
-                            file.write(image + y + x, 1);
-                        }
+                        file.write(pixel);
+                        file.write(pixel);
+                        file.write(pixel);
 
-                        // post-condition to prevent i overflow
-                        if (i == 0)
-                            break;
+                        if (i % 100 == 0)
+                            file.flush();
                     }
                 }
 
@@ -48,6 +45,7 @@ namespace Eloquent {
                         const uint32_t y = i * width * 3;
 
                         file.write(image + y, width * 3);
+                        file.flush();
                     }
                 }
 
@@ -69,18 +67,13 @@ namespace Eloquent {
                         file.write((lb & 0x1F) << 3);
                         file.write((hb & 0x07) << 5 | (lb & 0xE0) >> 3);
                         file.write(hb & 0xF8);
+
+                        if (i % 100 == 0)
+                            file.flush();
                     }
                 }
 
             protected:
-                /**
-                 * Get size of padding per row
-                 * @return
-                 */
-                uint8_t paddingSize() {
-                    return (4 - ((width * 3) % 4)) % 4;
-                }
-
                 /**
                  * Write Bitmap header
                  */

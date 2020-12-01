@@ -1,3 +1,6 @@
 _src
 cmake-build-debug
 .idea
+src/ImageProcessing/RGB565Decoder.h
+src/ImageProcessing/YUV422Decoder.h
+src/ImageProcessing/MotionDetection_backup.h
