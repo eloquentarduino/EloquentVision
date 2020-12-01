@@ -8,36 +8,42 @@ namespace Eloquent {
     namespace Vision {
 
         /**
-         * Eloquent class to detection motion in a stream of images
+         * Eloquent class to detect motion in a stream of images
          *
          * @tparam sourceWidth width of the source image
          * @tparam sourceHeight height of the source image
-         * @tparam blockSize size of a (squared) block
          */
-        template <uint16_t sourceWidth, uint16_t sourceHeight, uint8_t blockSize>
+        template <uint16_t sourceWidth, uint16_t sourceHeight>
         class MotionDetection {
         public:
             /**
              *
-             * @param downscaler
+             * @param smooth transition smoothing factor
              */
-            MotionDetection(ImageDownscaler downscaler) :
-                _downscaler(downscaler),
-                _smooth(0.5),
+            MotionDetection(float smooth = 0.25) :
+                _smooth(smooth),
                 _threshold(0.2) {
 
+                const uint8_t zeros[sourceWidth] = {0};
+
+                for (uint16_t y = 0; y < sourceHeight; y++) {
+                    memcpy(_curr[y], zeros, sourceWidth);
+                    memcpy(_prev[y], zeros, sourceWidth);
+                }
             }
 
             /**
              * Push new frame to motion detector
              * @param image
              */
-            void update(uint8_t *image) {
-                for (int i = 0, m = blocks(); i < m; i++)
-                    // smoothed transition
-                    _prev[i] = (1 - _smooth) * _curr[i] + _smooth * _prev[i];
-
-                downscaleImage(image, _curr, _downscaler, sourceWidth, sourceHeight, blockSize);
+            void update(uint8_t image[sourceHeight][sourceWidth]) {
+                for (uint16_t y = 0; y < sourceHeight; y++) {
+                    for (uint16_t x = 0; x < sourceWidth; x++) {
+                        // smoothed transition
+                        _prev[y][x] = (1 - _smooth) * _curr[y][x] + _smooth * _prev[y][x];
+                        _curr[y][x] = image[y][x];
+                    }
+                }
             }
 
             /**
@@ -67,70 +73,77 @@ namespace Eloquent {
             }
 
             /**
-             * Get number of blocks
+             * Get number of pixels
              * @return
              */
-            uint16_t blocks() {
-                return sourceWidth / blockSize * sourceHeight / blockSize;
+            inline uint16_t pixels() {
+                return sourceWidth * sourceHeight;
             }
 
             /**
-             * Detect how many blocks changed by at least a given threshold
+             * Detect how many pixels changed by at least a given threshold
              * @return
              */
             uint16_t detect() {
-                const uint16_t destHeight = sourceHeight / blockSize;
-                const uint16_t destWidth = sourceWidth / blockSize;
                 uint16_t changes = 0;
 
-                for (uint16_t i = 0, m = blocks(); i < m; i++) {
-                    float current = _curr[i];
-                    float prev = _prev[i];
+                // relative threshold
+                if (_threshold < 1) {
+                    for (uint16_t y = 0; y < sourceHeight; y++) {
+                        for (uint16_t x = 0; x < sourceWidth; x++) {
+                            float current = _curr[y][x];
+                            float prev = _prev[y][x];
+                            float delta = abs(current - prev) / (prev > 0 ? prev : 1);
 
-                    // relative delta
-                    if (_threshold < 1) {
-                        float delta = abs(current - prev) / (prev > 0 ? prev : 1);
-
-                        if (delta >= _threshold)
-                            changes += 1;
+                            if (delta >= _threshold)
+                                changes += 1;
+                        }
                     }
-                    else {
-                        // absolute delta
-                        float delta = abs(current - prev);
+                }
+                else {
+                    // absolute threshold
+                    for (uint16_t y = 0; y < sourceHeight; y++) {
+                        for (uint16_t x = 0; x < sourceWidth; x++) {
+                            float current = _curr[y][x];
+                            float prev = _prev[y][x];
+                            float delta = abs(current - prev);
 
-                        if (delta >= _threshold)
-                            changes += 1;
+                            if (delta >= _threshold)
+                                changes += 1;
+                        }
                     }
                 }
 
-                return changes;
+                return (_changes = changes);
             }
 
             /**
-             * Detect what ratio of blocks changed by at least a given threshold
-             * @param threshold
+             * Get the ratio of pixels that changed in the last frame
              * @return
              */
-            float detectRatio() {
-                return (1.0f * detect()) / blocks();
+            float ratio() {
+                return (1.0f * _changes) / pixels();
             }
 
 
         protected:
             /**
-             * Current frame (in blocks)
+             * Current frame
              */
-            uint8_t _curr[sourceWidth / blockSize * sourceHeight / blockSize] = {0};
+            uint8_t _curr[sourceHeight][sourceWidth];
+
             /**
-             * Previous frame (in blocks)
+             * Previous frame
              */
-            uint8_t _prev[sourceWidth / blockSize * sourceHeight / blockSize] = {0};
+            uint8_t _prev[sourceHeight][sourceWidth];
+
             /**
              * Smoothing factor for transition from a frame to the next
              * 0 means to completely discard the previous frame
              * 1 means no update at all (useless)
              */
             float _smooth;
+
             /**
              * Threshold to mark a block as "different" from the previous
              *  - if threshold < 1, it is interpreted as relative
@@ -138,10 +151,11 @@ namespace Eloquent {
              *  - set to 0 to detect every single change (not recommended)
              */
             float _threshold;
+
             /**
-             * Downscaler strategy
+             * Cache number of changes
              */
-            ImageDownscaler _downscaler;
+            uint8_t _changes;
         };
     }
 }
