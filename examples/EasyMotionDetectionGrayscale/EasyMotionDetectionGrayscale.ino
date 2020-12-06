@@ -37,12 +37,11 @@ Cross<SOURCE_WIDTH, SOURCE_HEIGHT, DEST_WIDTH, DEST_HEIGHT> crossStrategy;
 Downscaler<SOURCE_WIDTH, SOURCE_HEIGHT, CHANNELS, DEST_WIDTH, DEST_HEIGHT> downscaler(&crossStrategy);
 // the motion detection algorithm
 MotionDetection<DEST_WIDTH, DEST_HEIGHT> motion;
-// the writer to create a bitmap image
-BitmapWriter<SOURCE_WIDTH, SOURCE_HEIGHT> bitmapWriter;
+JpegWriter<SOURCE_WIDTH, SOURCE_HEIGHT> jpegWriter;
 
 
-// debounce prototype (see later)
 bool debounceMotion(bool touch = false);
+void printFilesize(const char *filename);
 
 
 /**
@@ -77,19 +76,21 @@ void loop() {
 
         // save image
         if (debounceMotion()) {
-            Serial.println("The image will be saved as /capture.bmp");
-            File imageFile = SPIFFS.open("/capture.bmp", "wb");
-
             // take a new pic in the hope it is less affected by the motion noise
             // (you may comment this out if you want)
             delay(500);
             frame = camera.capture();
 
-            // write as bitmap
-            // *this will take ~20 seconds for a 320x240 image
-            // and take 225 Kb of space*
-            bitmapWriter.writeGrayscale(imageFile, frame->buf);
+            // write as jpeg
+            File imageFile = SPIFFS.open("/capture.jpg", "wb");
+            // you can tweak this value as per your needs
+            uint8_t quality = 30;
+
+            Serial.println("The image will be saved as /capture.jpg");
+            jpegWriter.writeGrayscale(imageFile, frame->buf, quality);
             imageFile.close();
+            printFilesize("/capture.jpg");
+
             debounceMotion(true);
         }
     }
@@ -114,4 +115,20 @@ bool debounceMotion(bool touch) {
     }
 
     return false;
+}
+
+
+/**
+ * Print file size (for debug)
+ * @param filename
+ */
+void printFilesize(const char *filename) {
+    File file = SPIFFS.open(filename, "r");
+
+    Serial.print(filename);
+    Serial.print(" size is ");
+    Serial.print(file.size() / 1000);
+    Serial.println(" kb");
+
+    file.close();
 }

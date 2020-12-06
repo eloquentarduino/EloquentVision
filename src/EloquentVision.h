@@ -11,4 +11,5 @@
 
 #ifdef FS_H
 #include "io/BitmapWriter.h"
+#include "io/JpegWriter.h"
 #endif
