@@ -27,7 +27,7 @@ namespace Eloquent {
              * @param jpegQuality
              * @return
              */
-            bool begin(framesize_t frameSize, pixformat_t pixelFormat = PIXFORMAT_RGB565, uint8_t jpegQuality = 10) {
+            bool begin(framesize_t frameSize, pixformat_t pixelFormat = PIXFORMAT_RGB565, uint8_t jpegQuality = 30, uint32_t freq = 20000000) {
                 camera_config_t config;
 
                 config.ledc_channel = LEDC_CHANNEL_0;
@@ -48,7 +48,7 @@ namespace Eloquent {
                 config.pin_sscb_scl = SIOC_GPIO_NUM;
                 config.pin_pwdn = PWDN_GPIO_NUM;
                 config.pin_reset = RESET_GPIO_NUM;
-                config.xclk_freq_hz = 20000000;
+                config.xclk_freq_hz = freq;
                 config.pixel_format = _pixelFormat = pixelFormat;
                 config.frame_size = frameSize;
                 config.jpeg_quality = jpegQuality;
