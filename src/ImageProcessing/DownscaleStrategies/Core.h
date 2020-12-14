@@ -31,14 +31,19 @@ namespace Eloquent {
                      * @param block
                      * @return
                      */
-                    const uint8_t apply(uint8_t block[sourceHeight / destHeight][sourceWidth / destWidth]) {
-                        const uint8_t centerX = sourceWidth / destWidth * 0.5;
-                        const uint8_t centerY = sourceHeight / destHeight * 0.5;
+                    const uint8_t apply(uint8_t block[sourceHeight / destHeight][sourceWidth / destWidth])
+                    {
+                        const uint8_t blockSizeX = sourceWidth / destWidth;
+                        const uint8_t blockSizeY = sourceHeight / destHeight;
+                        const uint8_t centerX = blockSizeX * 0.5;
+                        const uint8_t centerY = blockSizeY * 0.5;
                         uint16_t accumulator = 0;
                         uint8_t count = 0;
 
-                        for (uint8_t y = max(0, centerY - _radius); y < centerY + _radius; y++) {
-                            for (uint8_t x = max(0, centerX - _radius); x < centerX + _radius; x++) {
+                        for (uint8_t y = max(0, centerY - _radius); y < min(centerY + _radius, (int)blockSizeY); y++)
+                        {
+                            for (uint8_t x = max(0, centerX - _radius); x < min(centerX + _radius, (int)blockSizeX); x++)
+                            {
                                 accumulator += block[y][x];
                                 count += 1;
                             }
