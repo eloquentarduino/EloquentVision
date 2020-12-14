@@ -155,7 +155,7 @@ namespace Eloquent {
             /**
              * Cache number of changes
              */
-            uint8_t _changes;
+            uint16_t _changes;
         };
     }
 }
