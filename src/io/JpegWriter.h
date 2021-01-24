@@ -23,6 +23,7 @@ namespace Eloquent {
 
                     if (fmt2jpg(image, width * height, width, height, PIXFORMAT_GRAYSCALE, quality, &jpeg, &len)) {
                         file.write(jpeg, len);
+                        free(jpeg);
 
                         return true;
                     }
